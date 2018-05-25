@@ -30,6 +30,7 @@ public class PartitionBatchPartialReceiver extends PartitionBatchReceiver {
   private MPIDataFlowPartition dataFlowOperation;
   protected Map<Integer, Map<Integer, Queue<Object>>> messages = new HashMap<>();
   protected Map<Integer, Map<Integer, Queue<Integer>>> flagsMap = new HashMap<>();
+  protected Map<Integer, Map<Integer, Integer>> bufferCounts = new HashMap<>();
 
   public void init(Config cfg, DataFlowOperation op, Map<Integer, List<Integer>> expectedIds) {
     finished = new ConcurrentHashMap<>();
@@ -38,23 +39,26 @@ public class PartitionBatchPartialReceiver extends PartitionBatchReceiver {
       Map<Integer, Boolean> perTarget = new ConcurrentHashMap<>();
       Map<Integer, Queue<Integer>> perTargetFlags = new ConcurrentHashMap<>();
       Map<Integer, Queue<Object>> perTargetMessages = new ConcurrentHashMap<>();
+      Map<Integer, Integer> perTargetBufferCounts = new ConcurrentHashMap<>();
       for (Integer target : expectedIds.get(source)) {
         perTarget.put(target, false);
         perTargetFlags.put(target, new ArrayBlockingQueue<Integer>(bufferSize));
         perTargetMessages.put(target, new ArrayBlockingQueue<Object>(bufferSize));
+        perTargetBufferCounts.put(target, 0);
       }
       finished.put(source, perTarget);
       flagsMap.put(source, perTargetFlags);
       messages.put(source, perTargetMessages);
+      bufferCounts.put(source, perTargetBufferCounts);
     }
   }
 
   @Override
-  public boolean onMessage(int source, int path, int target, int flags, Object object) {
+  public boolean onMessage(int source, int finalTarget, int target, int flags, Object object) {
     // add the object to the map
-    messages.get(source).get(path).add(object);
-    flagsMap.get(source).get(path).add(flags);
-
+    messages.get(source).get(finalTarget).add(object);
+    flagsMap.get(source).get(finalTarget).add(flags);
+    bufferCounts.get(source).put(finalTarget, bufferCounts.get(source).get(finalTarget) + 1);
 //    if ((flags & MessageFlags.FLAGS_LAST) == MessageFlags.FLAGS_LAST) {
 //      finished.get(target).put(source, true);
 //    }
@@ -68,6 +72,11 @@ public class PartitionBatchPartialReceiver extends PartitionBatchReceiver {
 
   @Override
   public void progress() {
+    //buffer code
+
+
+    //This will be used for now until we have the ability to change types working the buffering code
+
     for (Integer source : messages.keySet()) {
       for (Integer target : messages.get(source).keySet()) {
         if (messages.get(source).get(target).size() > 0) {

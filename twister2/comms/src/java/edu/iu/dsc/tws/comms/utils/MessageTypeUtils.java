@@ -77,5 +77,17 @@ public final class MessageTypeUtils {
     return false;
   }
 
-
+  public static boolean isBufferedType(MessageType type) {
+    if (type == MessageType.BBYTE
+        || type == MessageType.BCHAR
+        || type == MessageType.BDOUBLE
+        || type == MessageType.BIINTEGER
+        || type == MessageType.BLONG
+        || type == MessageType.BOBJECT
+        || type == MessageType.BSHORT
+        || type == MessageType.BSTRING) {
+      return true;
+    }
+    return false;
+  }
 }

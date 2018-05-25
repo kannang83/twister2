@@ -15,14 +15,22 @@ package edu.iu.dsc.tws.comms.api;
 // to update edu.iu.dsc.tws.data.memory.utils.DataMessageType
 public enum MessageType {
   INTEGER,
+  BIINTEGER,
   CHAR,
+  BCHAR,
   BYTE,
+  BBYTE,
   MULTI_FIXED_BYTE,
   STRING,
+  BSTRING,
   LONG,
+  BLONG,
   DOUBLE,
+  BDOUBLE,
   OBJECT,
+  BOBJECT,
   BUFFER,
   EMPTY,
-  SHORT;
+  SHORT,
+  BSHORT;
 }

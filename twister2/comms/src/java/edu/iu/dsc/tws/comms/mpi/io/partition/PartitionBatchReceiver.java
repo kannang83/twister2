@@ -22,6 +22,7 @@ import edu.iu.dsc.tws.comms.api.MessageReceiver;
  * Base receiver for partition operation
  */
 public class PartitionBatchReceiver implements MessageReceiver {
+  protected int sendPendingMax = 128;
 
   protected int bufferSize = 10;
   @Override
