@@ -22,7 +22,17 @@ import edu.iu.dsc.tws.comms.api.MessageReceiver;
  * Base receiver for partition operation
  */
 public class PartitionBatchReceiver implements MessageReceiver {
+  /**
+  Pending send message max for a single source target pair
+  after this is reached new messages will be rejected
+   */
   protected int sendPendingMax = 128;
+
+  /**
+  Pending send message max as a total. if the combined pending sends reach this value, incoming
+   messages will be blocked.
+   */
+  protected int sendPendingMaxTotal = 128 * 10;
 
   protected int bufferSize = 10;
   @Override

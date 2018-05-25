@@ -11,6 +11,7 @@
 //  limitations under the License.
 package edu.iu.dsc.tws.comms.mpi.io.partition;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +32,7 @@ public class PartitionBatchPartialReceiver extends PartitionBatchReceiver {
   protected Map<Integer, Map<Integer, Queue<Object>>> messages = new HashMap<>();
   protected Map<Integer, Map<Integer, Queue<Integer>>> flagsMap = new HashMap<>();
   protected Map<Integer, Map<Integer, Integer>> bufferCounts = new HashMap<>();
+  protected int totalPendingMessages = 0;
 
   public void init(Config cfg, DataFlowOperation op, Map<Integer, List<Integer>> expectedIds) {
     finished = new ConcurrentHashMap<>();
@@ -42,8 +44,8 @@ public class PartitionBatchPartialReceiver extends PartitionBatchReceiver {
       Map<Integer, Integer> perTargetBufferCounts = new ConcurrentHashMap<>();
       for (Integer target : expectedIds.get(source)) {
         perTarget.put(target, false);
-        perTargetFlags.put(target, new ArrayBlockingQueue<Integer>(bufferSize));
-        perTargetMessages.put(target, new ArrayBlockingQueue<Object>(bufferSize));
+        perTargetFlags.put(target, new ArrayBlockingQueue<Integer>(sendPendingMax));
+        perTargetMessages.put(target, new ArrayBlockingQueue<Object>(sendPendingMax));
         perTargetBufferCounts.put(target, 0);
       }
       finished.put(source, perTarget);
@@ -56,9 +58,17 @@ public class PartitionBatchPartialReceiver extends PartitionBatchReceiver {
   @Override
   public boolean onMessage(int source, int finalTarget, int target, int flags, Object object) {
     // add the object to the map
-    messages.get(source).get(finalTarget).add(object);
-    flagsMap.get(source).get(finalTarget).add(flags);
-    bufferCounts.get(source).put(finalTarget, bufferCounts.get(source).get(finalTarget) + 1);
+    if (messages.get(source).get(finalTarget).size() < sendPendingMax
+        || totalPendingMessages > sendPendingMaxTotal) {
+      messages.get(source).get(finalTarget).add(object);
+      flagsMap.get(source).get(finalTarget).add(flags);
+      bufferCounts.get(source).put(finalTarget, bufferCounts.get(source).get(finalTarget) + 1);
+      totalPendingMessages += 1;
+    } else {
+      // pending message limits have been met
+      return false;
+    }
+
 //    if ((flags & MessageFlags.FLAGS_LAST) == MessageFlags.FLAGS_LAST) {
 //      finished.get(target).put(source, true);
 //    }
@@ -73,7 +83,23 @@ public class PartitionBatchPartialReceiver extends PartitionBatchReceiver {
   @Override
   public void progress() {
     //buffer code
-
+    List<Object> dataList = new ArrayList<>(bufferSize);
+    for (Integer source : bufferCounts.keySet()) {
+      for (Integer target : bufferCounts.get(source).keySet()) {
+        dataList = new ArrayList<>();
+        if(bufferCounts.get(source).get(target) > bufferSize){
+          //Send message
+          Queue<Object> temp = messages.get(source).get(target);
+          for (int i = 0; i < bufferSize; i++) {
+            dataList.add(temp.poll());
+          }
+          bufferCounts.get(source).put(target, bufferCounts.get(source).get(target) - bufferSize);
+          //send message code here
+//          dataFlowOperation.sendPartial(source, messages.get(source).get(target).poll(),
+//              flagsMap.get(source).get(target).poll(), target);
+        }
+      }
+    }
 
     //This will be used for now until we have the ability to change types working the buffering code
 
