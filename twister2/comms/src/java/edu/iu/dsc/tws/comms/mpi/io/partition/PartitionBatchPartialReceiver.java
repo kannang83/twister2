@@ -87,7 +87,7 @@ public class PartitionBatchPartialReceiver extends PartitionBatchReceiver {
     for (Integer source : bufferCounts.keySet()) {
       for (Integer target : bufferCounts.get(source).keySet()) {
         dataList = new ArrayList<>();
-        if(bufferCounts.get(source).get(target) > bufferSize){
+        if (bufferCounts.get(source).get(target) > bufferSize) {
           //Send message
           Queue<Object> temp = messages.get(source).get(target);
           for (int i = 0; i < bufferSize; i++) {
