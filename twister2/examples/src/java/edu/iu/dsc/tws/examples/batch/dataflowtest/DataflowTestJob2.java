@@ -102,7 +102,7 @@ import edu.iu.dsc.tws.task.api.IMessage;
 import edu.iu.dsc.tws.task.graph.DataFlowTaskGraph;
 import edu.iu.dsc.tws.task.graph.OperationMode;
 
-public class ExperimentJob1 extends TaskWorker {
+public class DataflowTestJob2 extends TaskWorker {
 
   private static final Logger LOG = Logger.getLogger(ExperimentJob1.class.getName());
 
@@ -227,7 +227,7 @@ public class ExperimentJob1 extends TaskWorker {
 
     Twister2Job.Twister2JobBuilder jobBuilder = Twister2Job.newBuilder();
     jobBuilder.setJobName("Experiment-job");
-    jobBuilder.setWorkerClass(ExperimentJob1.class.getName());
+    jobBuilder.setWorkerClass(DataflowTestJob2.class.getName());
     jobBuilder.addComputeResource(2, 512, 1.0, 4);
     jobBuilder.setConfig(jobConfig);
 
