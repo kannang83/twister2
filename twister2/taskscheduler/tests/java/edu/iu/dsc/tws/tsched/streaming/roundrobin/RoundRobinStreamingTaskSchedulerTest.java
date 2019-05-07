@@ -12,6 +12,7 @@
 package edu.iu.dsc.tws.tsched.streaming.roundrobin;
 
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Logger;
 
 import org.junit.Assert;
@@ -20,6 +21,7 @@ import org.junit.Test;
 import edu.iu.dsc.tws.api.task.ComputeConnection;
 import edu.iu.dsc.tws.api.task.TaskGraphBuilder;
 import edu.iu.dsc.tws.common.config.Config;
+import edu.iu.dsc.tws.common.config.Context;
 import edu.iu.dsc.tws.comms.api.Op;
 import edu.iu.dsc.tws.data.api.DataType;
 import edu.iu.dsc.tws.task.api.BaseSink;
@@ -35,7 +37,9 @@ import edu.iu.dsc.tws.tsched.spi.taskschedule.TaskSchedulePlan;
 
 public class RoundRobinTaskSchedulerTest {
 
-  private static final Logger LOG = Logger.getLogger(RoundRobinTaskSchedulerTest.class.getName());
+  private static final Logger LOG = Logger.getLogger(
+      RoundRobinStreamingTaskSchedulerTest.class.getName());
+
   @Test
   public void testUniqueSchedules() {
     int parallel = 256;
@@ -84,6 +88,25 @@ public class RoundRobinTaskSchedulerTest {
     }
   }
 
+  @Test
+  public void testUniqueSchedules3() {
+    int parallel = 16;
+    int workers = 2;
+    DataFlowTaskGraph graph = createGraphWithGraphConstraints(parallel);
+    RoundRobinTaskScheduler scheduler = new RoundRobinTaskScheduler();
+    scheduler.initialize(Config.newBuilder().build());
+    WorkerPlan workerPlan = createWorkPlan(workers);
+
+    TaskSchedulePlan plan1 = scheduler.schedule(graph, workerPlan);
+    Map<Integer, ContainerPlan> containersMap = plan1.getContainersMap();
+    for (Map.Entry<Integer, ContainerPlan> entry : containersMap.entrySet()) {
+      Integer containerId = entry.getKey();
+      ContainerPlan containerPlan = entry.getValue();
+      Set<TaskInstancePlan> containerPlanTaskInstances = containerPlan.getTaskInstances();
+      Assert.assertEquals(containerPlanTaskInstances.size(), Integer.parseInt(
+          graph.getGraphConstraints().get(Context.TWISTER2_MAX_TASK_INSTANCES_PER_WORKER)));
+    }
+  }
 
   private boolean containerEquals(ContainerPlan p1,
                                   ContainerPlan p2) {
@@ -129,6 +152,22 @@ public class RoundRobinTaskSchedulerTest {
     c.reduce("source", "edge", Op.SUM, DataType.INTEGER_ARRAY);
     builder.setMode(OperationMode.STREAMING);
     return builder.build();
+  }
+
+
+  private DataFlowTaskGraph createGraphWithGraphConstraints(int parallel) {
+    TestSource ts = new TestSource();
+    TestSink testSink = new TestSink();
+
+    TaskGraphBuilder builder = TaskGraphBuilder.newBuilder(Config.newBuilder().build());
+    builder.addSource("source", ts, parallel);
+    ComputeConnection c = builder.addSink("sink", testSink, parallel);
+    c.reduce("source", "edge", Op.SUM, DataType.INTEGER_ARRAY);
+    builder.setMode(OperationMode.STREAMING);
+
+    builder.addGraphConstraints(Context.TWISTER2_MAX_TASK_INSTANCES_PER_WORKER, "16");
+    DataFlowTaskGraph graph = builder.build();
+    return graph;
   }
 
   public static class TestSource extends BaseSource {

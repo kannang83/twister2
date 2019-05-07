@@ -48,12 +48,11 @@ java_library(
 java_tests(
     test_classes = [
         "edu.iu.dsc.tws.tsched.taskscheduler.TaskSchedulerTest",
-        "edu.iu.dsc.tws.tsched.streaming.roundrobin.RoundRobinTaskSchedulerTest",
-        "edu.iu.dsc.tws.tsched.streaming.datalocality.DataLocalityTaskSchedulerTest",
+        "edu.iu.dsc.tws.tsched.streaming.roundrobin.RoundRobinStreamingTaskSchedulerTest",
+        "edu.iu.dsc.tws.tsched.streaming.firstfit.FirstFitTaskSchedulerTest",
+        "edu.iu.dsc.tws.tsched.streaming.datalocality.DataLocalityStreamingTaskSchedulerTest",
         "edu.iu.dsc.tws.tsched.batch.roundrobin.RoundRobinBatchTaskSchedulerTest",
         "edu.iu.dsc.tws.tsched.batch.datalocality.DataLocalityBatchTaskSchedulerTest",
     ],
-    runtime_deps = [
-        ":tsched-tests",
-    ],
+    runtime_deps = [":tsched-tests"],
 )

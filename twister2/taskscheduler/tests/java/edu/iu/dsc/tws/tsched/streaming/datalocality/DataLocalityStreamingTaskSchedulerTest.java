@@ -69,7 +69,6 @@ public class DataLocalityTaskSchedulerTest {
     scheduler.initialize(config);
     WorkerPlan workerPlan = createWorkPlan(parallel);
     TaskSchedulePlan plan1 = scheduler.schedule(graph, workerPlan);
-
     WorkerPlan workerPlan2 = createWorkPlan2(parallel);
     for (int i = 0; i < 1; i++) {
       TaskSchedulePlan plan2 = scheduler.schedule(graph, workerPlan2);
@@ -99,8 +98,8 @@ public class DataLocalityTaskSchedulerTest {
 
   private Config getConfig() {
 
-    String twister2Home = "/home/username/twister2/bazel-bin/scripts/package/twister2-0.2.0";
-    String configDir = "/home/username/twister2/twister2/taskscheduler/tests/conf/";
+    String twister2Home = "/home/kannan/twister2/bazel-bin/scripts/package/twister2-0.2.0";
+    String configDir = "/home/kannan/twister2/twister2/taskscheduler/tests/conf/";
     String clusterType = "standalone";
 
     Config config = ConfigLoader.loadConfig(twister2Home, configDir + "/" + clusterType);
@@ -138,18 +137,18 @@ public class DataLocalityTaskSchedulerTest {
 
     GraphBuilder builder = GraphBuilder.newBuilder();
     builder.addSource("source", ts);
-    builder.setParallelism("source", 2);
+    builder.setParallelism("source", parallel);
 
     builder.addSink("sink1", testSink1);
-    builder.setParallelism("sink1", 2);
+    builder.setParallelism("sink1", parallel);
 
     builder.addSink("sink2", testSink2);
-    builder.setParallelism("sink2", 2);
+    builder.setParallelism("sink2", parallel);
 
     builder.addSink("merge", testMerge);
-    builder.setParallelism("merge", 2);
+    builder.setParallelism("merge", parallel);
     builder.addSink("final", testFinal);
-    builder.setParallelism("final", 2);
+    builder.setParallelism("final", parallel);
 
     builder.connect("source", "sink1", "partition-edge1", OperationNames.PARTITION);
     builder.connect("sink1", "sink2", "partition-edge2", OperationNames.PARTITION);
