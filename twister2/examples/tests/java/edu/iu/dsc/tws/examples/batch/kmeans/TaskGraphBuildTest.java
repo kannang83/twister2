@@ -31,7 +31,7 @@ import edu.iu.dsc.tws.task.graph.DataFlowTaskGraph;
 
 public class TaskGraphBuildTest {
 
-  private static final Logger LOGGER = Logger.getLogger(TaskGraphBuildTest.class.getName());
+  private static final Logger LOG = Logger.getLogger(TaskGraphBuildTest.class.getName());
 
   @Test
   public void testUniqueSchedules1() {
@@ -87,8 +87,10 @@ public class TaskGraphBuildTest {
   }
 
   private Config getConfig() {
-    String twister2Home = "/home/username/twister2/bazel-bin/scripts/package/twister2-0.2.0";
-    String configDir = "/home/username/twister2/twister2/taskscheduler/tests/conf/";
+    String twister2Home = "/home/" + System.getProperty("user.name")
+        + "/twister2/bazel-bin/scripts/package/twister2-0.2.1";
+    String configDir = "/home/" + System.getProperty("user.name")
+        + "/twister2/twister2/taskscheduler/tests/conf/";
     String clusterType = "standalone";
     Config config = ConfigLoader.loadConfig(twister2Home, configDir + "/" + clusterType);
     return Config.newBuilder().putAll(config).build();
