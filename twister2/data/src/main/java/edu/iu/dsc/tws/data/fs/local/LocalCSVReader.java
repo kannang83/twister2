@@ -100,11 +100,11 @@ public class LocalCSVReader {
     return this;
   }
 
-  private void configureInputSplit(CSVInputSplit<?> inputSplit) {
-    inputSplit.setBufferSize(2000);
-    inputSplit.setCharsetName(this.charset);
-    //inputSplit.setDelimiter(this.lineDelimiter);
-    //inputSplit.setSkipFirstLineAsHeader(skipFirstLineAsHeader);
-    //inputSplit.setLenient(ignoreInvalidLines);
-  }
+//  private void configureInputSplit(CSVInputSplit<?> inputSplit) {
+//    inputSplit.setBufferSize(2000);
+//    inputSplit.setCharsetName(this.charset);
+//    //inputSplit.setDelimiter(this.lineDelimiter);
+//    //inputSplit.setSkipFirstLineAsHeader(skipFirstLineAsHeader);
+//    //inputSplit.setLenient(ignoreInvalidLines);
+//  }
 }

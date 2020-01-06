@@ -41,15 +41,17 @@ public class PointDataSource extends BaseSource implements Collector {
   private String inputKey;
   private int dimension;
   private double[][] dataPointsLocal;
+  private int datasize;
 
   PointDataSource() {
   }
 
-  PointDataSource(String edgename, String dataDirectory, String inputKey, int dim) {
+  PointDataSource(String edgename, String dataDirectory, String inputKey, int dim, int dsize) {
     this.edgeName = edgename;
     this.dataDirectory = dataDirectory;
     this.inputKey = inputKey;
     this.dimension = dim;
+    this.datasize = dsize;
   }
 
   /**
@@ -65,7 +67,7 @@ public class PointDataSource extends BaseSource implements Collector {
       try {
         while (!inputSplit.reachedEnd()) {
           Object value = inputSplit.nextRecord(null);
-          //LOG.info("%%%%%%%%% object value:%%%%%%%%%%%%" + value);
+          LOG.info("%%%%%%%%% object value:%%%%%%%%%%%%" + value.toString());
           if (value != null) {
             double[] row = new double[dimension];
             String[] data = value.toString().split(",");
@@ -96,8 +98,6 @@ public class PointDataSource extends BaseSource implements Collector {
         ExecutorContext.TWISTER2_RUNTIME_OBJECT);
     this.source = runtime.createInput(cfg, context, new LocalCSVInputPartitioner(
         new Path(dataDirectory), context.getParallelism(), cfg));
-    /*this.source = runtime.createInput(cfg, context, new LocalTextInputPartitioner(
-        new Path(dataDirectory), context.getParallelism(), cfg));*/
   }
 
   @Override

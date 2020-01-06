@@ -94,8 +94,8 @@ public class KMeansComputeJob implements IWorker {
     String dataDirectory = config.getStringValue(DataObjectConstants.DINPUT_DIRECTORY);
     String centroidDirectory = config.getStringValue(DataObjectConstants.CINPUT_DIRECTORY);
 
-    KMeansUtils.generateDataPoints(config, dimension, numFiles, dsize, csize, dataDirectory,
-        centroidDirectory);
+//    KMeansUtils.generateDataPoints(config, dimension, numFiles, dsize, csize, dataDirectory,
+//        centroidDirectory);
 
     long startTime = System.currentTimeMillis();
 
@@ -142,7 +142,7 @@ public class KMeansComputeJob implements IWorker {
                                                int parallelismValue, int dimension,
                                                Config conf) {
     PointDataSource ps = new PointDataSource(Context.TWISTER2_DIRECT_EDGE,
-        dataDirectory, "points", dimension);
+        dataDirectory, "points", dimension, dsize);
 
     /*DataObjectCSVSource ps = new DataObjectCSVSource(Context.TWISTER2_DIRECT_EDGE,
         dataDirectory);*/
@@ -159,7 +159,7 @@ public class KMeansComputeJob implements IWorker {
                                               int parallelismValue, int dimension,
                                               Config conf) {
     PointDataSource cs = new PointDataSource(Context.TWISTER2_DIRECT_EDGE, centroidDirectory,
-        "centroids", dimension);
+        "centroids", dimension, csize);
     ComputeGraphBuilder centroidsComputeGraphBuilder = ComputeGraphBuilder.newBuilder(conf);
 
     centroidsComputeGraphBuilder.addSource("centroidsource", cs,
